@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SafeBox Editor — استعادة كلمة مرور SHAREit</title>
+<style>
+/* ===== TOKENS ===== */
+:root{
+  --bg:#0d1117;--s1:#161b27;--s2:#1e2436;--s3:#252d42;
+  --bd:#2a3354;--bd2:#3a4570;
+  --ac:#4f8ef7;--ac2:#7c5cfc;--ac3:#00d4aa;
+  --ok:#2ecc71;--warn:#f39c12;--err:#e74c3c;
+  --txt:#dde3f5;--muted:#6b7599;
+  --mono:'Courier New',monospace;
+  --r:12px;--r2:8px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+[data-theme="light"]{
+  --bg:#f0f2f8;--s1:#ffffff;--s2:#f4f6fc;--s3:#e8ecf6;
+  --bd:#cdd3e8;--bd2:#b0bad8;
+  --txt:#1a2040;--muted:#5a6380;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;
+  min-height:100vh;padding-bottom:calc(80px + var(--safe-bot));
+  transition:background .3s,color .3s}
+
+/* ===== NAV ===== */
+nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between;height:54px;
+  position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);
+  padding-top:var(--safe-top)}
+.logo{font-weight:800;font-size:1rem;background:linear-gradient(135deg,var(--ac),var(--ac2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:flex;align-items:center;gap:6px}
+.logo-icon{font-size:1.1rem;-webkit-text-fill-color:initial}
+.nav-right{display:flex;align-items:center;gap:8px}
+.lang-btn,.theme-btn{background:var(--s2);border:1px solid var(--bd);border-radius:8px;
+  color:var(--muted);font-size:.75rem;padding:5px 10px;cursor:pointer;transition:.15s;
+  font-weight:600}
+.lang-btn:hover,.theme-btn:hover{border-color:var(--ac);color:var(--ac)}
+
+/* ===== ADS RAILS ===== */
+[data-ad]{display:block}
+
+/* ===== HERO ===== */
+.hero{text-align:center;padding:40px 20px 28px;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(79,142,247,.12),transparent)}
+.hero h1{font-size:clamp(1.4rem,5vw,2.2rem);font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,var(--ac),var(--ac2),var(--ac3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:10px}
+.hero p{color:var(--muted);font-size:.88rem;max-width:500px;margin:0 auto 8px;line-height:1.6}
+.hero .app-tag{display:inline-flex;align-items:center;gap:6px;background:var(--s2);
+  border:1px solid var(--bd);border-radius:99px;padding:4px 14px;font-size:.78rem;
+  color:var(--ac);margin-top:8px}
+
+/* ===== WRAP ===== */
+.wrap{max-width:740px;margin:0 auto;padding:0 14px}
+
+/* ===== BACKUP BANNER ===== */
+.backup-banner{background:linear-gradient(135deg,#1f1706,#241b07);
+  border:1px solid var(--warn);border-radius:var(--r);padding:13px 16px;
+  margin:16px 0;display:flex;align-items:flex-start;gap:10px;line-height:1.6}
+[data-theme="light"] .backup-banner{background:linear-gradient(135deg,#fffbe6,#fff8d6)}
+.backup-banner strong{color:var(--warn);display:block;margin-bottom:2px;font-size:.88rem}
+.backup-banner p{font-size:.8rem;color:#c9a84c}
+
+/* ===== CARD ===== */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  padding:20px;margin-bottom:16px}
+.card-title{font-size:.75rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--ac);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* ===== UPLOAD ===== */
+.upload-zone{border:2px dashed var(--bd);border-radius:var(--r);padding:32px 16px;
+  text-align:center;cursor:pointer;transition:.2s;background:var(--s2);position:relative;
+  display:block}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--ac);background:var(--s3)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:2rem;margin-bottom:8px}
+.upload-zone h2{font-size:.9rem;font-weight:600;margin-bottom:4px}
+.upload-zone small{color:var(--muted);font-size:.78rem}
+.upload-zone.done{border-color:var(--ok);background:#0b1e12}
+[data-theme="light"] .upload-zone.done{background:#e6faf0}
+
+/* ===== STATS ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px}
+.stat-box{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;text-align:center}
+.stat-box .sv{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--ac),var(--ac2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-box .sl{font-size:.7rem;color:var(--muted);margin-top:2px}
+.type-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd);font-size:.83rem}
+.type-row:last-child{border:none}
+.type-icon{font-size:1.2rem;width:28px;text-align:center}
+.type-bar-wrap{flex:1;background:var(--s3);border-radius:99px;height:6px;overflow:hidden}
+.type-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ac),var(--ac2));
+  transition:width .7s cubic-bezier(.4,0,.2,1)}
+.type-count{font-size:.75rem;color:var(--muted);min-width:24px;text-align:left}
+.dates-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.date-box{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r2);padding:10px 12px}
+.date-box .dl{font-size:.68rem;color:var(--muted);margin-bottom:3px}
+.date-box .dv{font-size:.8rem;font-weight:600;direction:ltr;text-align:left}
+.deleted-note{font-size:.73rem;color:var(--warn);margin-top:10px;
+  background:#1e1508;border:1px solid #5a3d08;border-radius:6px;padding:7px 12px}
+[data-theme="light"] .deleted-note{background:#fff8e1}
+
+/* ===== CREDS ===== */
+.cred-note{font-size:.78rem;color:var(--muted);margin-bottom:14px;line-height:1.6}
+.cred-item{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:12px 14px;margin-bottom:8px}
+.cred-item:last-child{margin-bottom:0}
+.cred-label{font-size:.7rem;color:var(--muted);margin-bottom:7px;font-weight:600}
+.cred-value{font-family:var(--mono);font-size:.86rem;font-weight:700;color:var(--txt);letter-spacing:.5px}
+.copy-row{display:flex;align-items:center;gap:7px;margin-top:7px}
+.copy-btn{background:var(--s3);border:1px solid var(--bd);border-radius:6px;
+  color:var(--muted);font-size:.72rem;padding:4px 10px;cursor:pointer;transition:.15s}
+.copy-btn:hover{border-color:var(--ac);color:var(--ac)}
+.copy-btn.copied{border-color:var(--ok);color:var(--ok)}
+
+/* ===== PATTERN SVG ===== */
+.pattern-wrap{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
+.pattern-svg-box{flex-shrink:0}
+.pattern-info{font-size:.78rem;color:var(--muted);line-height:2.1;padding-top:4px}
+
+/* ===== STATUS ===== */
+.status{padding:10px 14px;border-radius:var(--r2);font-size:.83rem;margin-bottom:12px;display:none}
+.status.info{background:#132040;border:1px solid var(--ac);color:var(--ac);display:block}
+.status.ok{background:#0b1e12;border:1px solid var(--ok);color:var(--ok);display:block}
+.status.err{background:#1f0b0b;border:1px solid var(--err);color:var(--err);display:block}
+[data-theme="light"] .status.info{background:#e8f0fe}
+[data-theme="light"] .status.ok{background:#e6faf0}
+[data-theme="light"] .status.err{background:#fdecea}
+
+/* ===== BUTTONS ===== */
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:.92rem;
+  font-weight:700;cursor:pointer;transition:.2s}
+.btn-apply{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff}
+.btn-apply:hover{opacity:.88}
+.btn-apply:disabled{opacity:.35;cursor:not-allowed}
+.btn-dl{background:linear-gradient(135deg,var(--ok),#27ae60);color:#fff;margin-top:9px;display:none}
+.btn-dl:hover{opacity:.88}
+.btn-reset{background:var(--s2);border:1px solid var(--bd);color:var(--muted);
+  margin-top:7px;font-size:.8rem;padding:8px;display:none}
+.btn-reset:hover{border-color:var(--bd2);color:var(--txt)}
+
+/* ===== CAPTCHA MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  padding:24px;width:min(340px,90vw);text-align:center}
+.modal-box h3{font-size:1rem;font-weight:700;margin-bottom:6px}
+.modal-box p{font-size:.8rem;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.captcha-display{font-size:2rem;font-weight:800;letter-spacing:8px;font-family:var(--mono);
+  background:var(--s2);border:1px solid var(--bd);border-radius:8px;
+  padding:12px;margin-bottom:6px;color:var(--ac);
+  text-decoration:line-through;text-decoration-color:var(--bd2);
+  user-select:none;position:relative;overflow:hidden}
+.captcha-display::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(79,142,247,.04) 3px,rgba(79,142,247,.04) 6px)}
+.captcha-noise{position:absolute;inset:0;pointer-events:none}
+.captcha-input{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:8px;
+  color:var(--txt);font-family:var(--mono);font-size:1.2rem;font-weight:700;
+  padding:10px;text-align:center;letter-spacing:6px;margin-bottom:4px;
+  direction:ltr;outline:none}
+.captcha-input:focus{border-color:var(--ac)}
+.captcha-err{font-size:.75rem;color:var(--err);min-height:18px;margin-bottom:10px}
+.captcha-ad{margin-bottom:14px;min-height:60px;background:var(--s2);
+  border:1px solid var(--bd);border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:.72rem;color:var(--muted);overflow:hidden}
+.modal-btn{width:100%;padding:11px;border:none;border-radius:8px;font-size:.9rem;
+  font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--ac),var(--ac2));
+  color:#fff;transition:.2s}
+.modal-btn:hover{opacity:.88}
+.modal-btn:disabled{opacity:.4;cursor:not-allowed}
+.refresh-cap{background:none;border:none;color:var(--muted);font-size:.75rem;
+  cursor:pointer;margin-top:8px;text-decoration:underline}
+
+/* ===== VIDEO ===== */
+.video-thumb{position:relative;border-radius:var(--r);overflow:hidden;cursor:pointer;
+  background:var(--s3);aspect-ratio:16/9}
+.video-thumb img{width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .3s}
+.video-thumb:hover img{transform:scale(1.02)}
+.video-play-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.play-circle{width:64px;height:64px;border-radius:50%;background:rgba(255,0,0,.9);
+  display:flex;align-items:center;justify-content:center;transition:.2s;
+  box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.video-thumb:hover .play-circle{background:rgba(255,0,0,1);transform:scale(1.08)}
+.play-triangle{width:0;height:0;border-top:12px solid transparent;
+  border-bottom:12px solid transparent;border-left:22px solid #fff;margin-left:4px}
+.video-duration{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.8);
+  color:#fff;font-size:.72rem;font-weight:700;padding:2px 6px;border-radius:4px}
+.video-wrap iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:var(--r);display:block}
+.video-meta{margin-top:10px}
+.video-meta h3{font-size:.9rem;font-weight:700;margin-bottom:3px}
+.video-meta small{font-size:.75rem;color:var(--muted)}
+
+/* ===== STEPS ===== */
+.step{display:flex;gap:12px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--bd)}
+.step:last-child{border:none;margin:0;padding:0}
+.step-num{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;
+  border-radius:50%;width:28px;height:28px;display:flex;align-items:center;
+  justify-content:center;font-weight:800;font-size:.78rem;flex-shrink:0;margin-top:2px}
+.step h3{font-size:.85rem;font-weight:700;margin-bottom:3px}
+.step p{font-size:.78rem;color:var(--muted);line-height:1.6}
+
+/* ===== SOCIAL ===== */
+.social-grid{display:flex;flex-wrap:wrap;gap:8px}
+.social-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;
+  border-radius:8px;font-size:.8rem;font-weight:600;text-decoration:none;
+  transition:.15s;border:1px solid var(--bd);color:var(--txt);background:var(--s2)}
+.social-btn:hover{border-color:var(--ac);color:var(--ac);background:var(--s3)}
+.social-btn .si{font-size:1rem}
+
+/* ===== GIFT BTN ===== */
+#giftBtn{position:fixed;bottom:calc(70px + var(--safe-bot));inset-inline-end:14px;
+  z-index:25;background:linear-gradient(135deg,#ff6b35,#f7c59f);
+  color:#1a0a00;width:50px;height:50px;border-radius:50%;border:none;
+  font-size:1.3rem;cursor:pointer;box-shadow:0 4px 16px rgba(255,107,53,.4);
+  display:flex;align-items:center;justify-content:center;
+  animation:pulse 2.5s infinite}
+#giftBtn:hover{transform:scale(1.1)}
+@keyframes pulse{0%,100%{box-shadow:0 4px 14px rgba(255,107,53,.4)}
+  50%{box-shadow:0 4px 26px rgba(255,107,53,.7)}}
+
+/* ===== FOOTER ===== */
+footer{background:var(--s1);border-top:1px solid var(--bd);
+  padding:18px 20px;text-align:center;font-size:.76rem;color:var(--muted);margin-top:28px}
+footer a{color:var(--ac);text-decoration:none}
+
+/* ===== AD SLOTS ===== */
+.ad-slot{padding:6px 0;text-align:center;min-height:50px}
+
+@media(max-width:480px){
+  .dates-row{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .pattern-wrap{flex-direction:column}
+}
+</style>
+</head>
+<body data-ads="open">
+
+<!-- مفاتيح مشفرة -->
+<script>
+(function(g){
+  var _k='SBX_TOOL_2026_K';
+  function _d(s){var r=atob(s),b=[];for(var i=0;i<r.length;i++)b.push(r.charCodeAt(i)^_k.charCodeAt(i%_k.length));return new TextDecoder().decode(new Uint8Array(b));}
+  g.__SBX__={p:_d('GW0eKHs4Bzk4Bl1BBggMHyw0FmYtOHFi'),pp:_d('FHNoNH8mDTsPQlxHBTx8AAUfdC0kOHFi'),q:_d('PCwsFi0BDAA2ZGN3HRlgNikdKSMsFQIpeXlGc2wlPDIuByYoPB5nYFVYVBoeNHMdEz97PTkZAmpfVDVgMgAcNg=='),a:_d('JAsOGmQFAHwwVGdwQzEzOTIZJW19OHFi')};
+})(window);
+</script>
+
+<!-- NAV -->
+<nav>
+  <div class="logo"><span class="logo-icon">🔐</span><span id="logo-txt">SafeBox Editor</span></div>
+  <div class="nav-right">
+    <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1 id="h-title">استعادة كلمة مرور SafeBox</h1>
+  <p id="h-sub">أداة مجانية لاستبدال بيانات القفل في SHAREit SafeBox — بدون برامج، تعمل في متصفحك</p>
+  <div class="app-tag">📱 SHAREit — فايل الشير ات</div>
+</div>
+
+<!-- AD TOP -->
+<div class="wrap"><div class="ad-slot"><div data-ad="top"></div></div></div>
+
+<!-- RAILS -->
+<div data-ad="railL"></div>
+<div data-ad="railR"></div>
+
+<div class="wrap">
+
+<!-- BACKUP -->
+<div class="backup-banner">
+  <span style="font-size:1.3rem;flex-shrink:0;margin-top:1px">⚠️</span>
+  <div>
+    <strong id="bk-title">خد نسخة احتياطية أولاً!</strong>
+    <p id="bk-body">قبل أي تعديل، انسخ ملف <code>safebox.db</code> الأصلي في مكان تاني. الأداة بتعدل الملف ومش بترجع التعديلات.</p>
+  </div>
+</div>
+
+<!-- STEP 1: رفع الملف -->
+<div class="card" id="uploadCard">
+  <div class="card-title" id="s1-title">📂 الخطوة ١ — رفع ملف safebox.db</div>
+  <label class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept=".db">
+    <div class="upload-icon" id="uploadIcon">📂</div>
+    <h2 id="uploadTitle">اختر أو اسحب ملف safebox.db</h2>
+    <small id="uploadSub">الملف لا يُرسل لأي سيرفر — كل المعالجة في متصفحك</small>
+  </label>
+</div>
+
+<!-- STEP 2: إحصائيات -->
+<div class="card" id="statsCard" style="display:none">
+  <div class="card-title" id="s2-title">📊 الخطوة ٢ — إحصائيات الملف</div>
+  <div class="stats-grid" id="statsGrid"></div>
+  <div id="typesSection"></div>
+  <div class="dates-row" id="datesSection"></div>
+  <div class="deleted-note" id="deletedNote" style="display:none"></div>
+</div>
+
+<!-- AD MID -->
+<div class="ad-slot"><div data-ad="mid"></div></div>
+
+<!-- STEP 3: بيانات الاسترداد -->
+<div class="card" id="credsCard" style="display:none">
+  <div class="card-title" id="s3-title">🔑 الخطوة ٣ — بيانات الاسترداد</div>
+  <p class="cred-note" id="cred-note-txt">هذه هي البيانات التي ستُكتب في الملف. احتفظ بها في مكان آمن.</p>
+
+  <div class="cred-item">
+    <div class="cred-label" id="lbl-pwd">🔢 كلمة المرور</div>
+    <div class="cred-value">0115</div>
+    <div class="copy-row"><button class="copy-btn" onclick="copyText('0115',this)" id="copy-pwd">📋 نسخ</button></div>
+  </div>
+
+  <div class="cred-item">
+    <div class="cred-label" id="lbl-pat">🔲 نمط القفل — حرف M</div>
+    <div class="pattern-wrap">
+      <div class="pattern-svg-box">
+        <svg id="patternSVG" width="130" height="130" viewBox="0 0 130 130">
+          <defs>
+            <marker id="arrowP" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M2 2L8 5L2 8" fill="none" stroke="#4f8ef7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- Lines (drawn behind dots) -->
+          <g id="patLines"></g>
+          <!-- Dots -->
+          <g id="patDots"></g>
+          <!-- Animated dot -->
+          <circle id="animDot" r="6" fill="#4f8ef7" opacity="0" filter="url(#glow)">
+            <defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+          </circle>
+        </svg>
+        <div style="font-size:.7rem;color:var(--muted);text-align:center;margin-top:2px" id="pat-hint">↙ ابدأ من أسفل اليسار</div>
+      </div>
+      <div class="pattern-info" id="pat-steps">
+        <div>① أسفل اليسار (7)</div>
+        <div>② أعلى اليسار (1)</div>
+        <div>③ المنتصف (5)</div>
+        <div>④ أعلى اليمين (3)</div>
+        <div>⑤ أسفل اليمين (9)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cred-item">
+    <div class="cred-label" id="lbl-qa">❓ سؤال الأمان</div>
+    <div class="cred-value">MajdFatihyOnYoutube</div>
+    <div class="copy-row"><button class="copy-btn" onclick="copyText('MajdFatihyOnYoutube',this)" id="copy-qa">📋 نسخ</button></div>
+  </div>
+</div>
+
+<!-- STEP 4: تطبيق -->
+<div class="card" id="applyCard" style="display:none">
+  <div class="card-title" id="s4-title">✅ الخطوة ٤ — تطبيق وتنزيل</div>
+  <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px;line-height:1.6" id="apply-note">
+    سيتم استبدال بيانات القفل فقط. باقي البيانات تبقى كما هي.
+  </p>
+  <div id="applyStatus" class="status"></div>
+  <button class="btn btn-apply" id="btnApply" disabled onclick="startCaptcha()">🔄 تطبيق التغييرات على الملف</button>
+  <button class="btn btn-dl" id="btnDl">⬇️ تنزيل الملف المعدل (safebox.db)</button>
+  <button class="btn btn-reset" id="btnReset" onclick="resetTool()">↩️ إعادة التحميل / ملف آخر</button>
+</div>
+
+<!-- AD SEO -->
+<div class="ad-slot"><div data-ad="seo"></div></div>
+
+<!-- فيديو تعليمي -->
+<div class="card">
+  <div class="card-title" id="vid-title">🎬 شرح طريقة الاستخدام</div>
+  <div id="videoContainer">
+    <div class="video-thumb" id="videoThumb" onclick="playVideo()">
+      <img id="videoImg" src="https://img.youtube.com/vi/4Djm_Js9Tzg/maxresdefault.jpg"
+           onerror="this.src='https://img.youtube.com/vi/4Djm_Js9Tzg/hqdefault.jpg'"
+           alt="شرح SafeBox Editor">
+      <div class="video-play-btn">
+        <div class="play-circle"><div class="play-triangle"></div></div>
+      </div>
+      <div class="video-duration">شرح كامل</div>
+    </div>
+    <div class="video-meta">
+      <h3 id="vid-meta-title">كيف تسترد كلمة مرور SafeBox في SHAREit؟</h3>
+      <small id="vid-meta-sub">قناة MajdFatihy على يوتيوب</small>
+    </div>
+  </div>
+</div>
+
+<!-- طريقة الاستخدام -->
+<div class="card">
+  <div class="card-title" id="how-title">📖 طريقة الاستخدام</div>
+  <div>
+    <div class="step"><div class="step-num">1</div><div><h3 id="st1h">استخرج الملف من جهازك</h3><p id="st1p">افتح مدير الملفات ← Android/data/com.lenovo.anyshare.gps/files/SafeBox ← انسخ <code>safebox.db</code></p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h3 id="st2h">خد نسخة احتياطية</h3><p id="st2p">انسخ الملف الأصلي على Google Drive أو كارت SD قبل أي تعديل.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h3 id="st3h">ارفع الملف هنا</h3><p id="st3p">اسحب <code>safebox.db</code> للمربع أو اضغط عليه للاختيار. لا يُرسل لأي سيرفر.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div><h3 id="st4h">طبّق ونزّل</h3><p id="st4p">اضغط "تطبيق"، أجب على الكابتشا، ثم نزّل الملف المعدل.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div><h3 id="st5h">ضع الملف مكانه</h3><p id="st5p">ضع الملف المعدل في نفس المسار، افتح SHAREit SafeBox وادخل النمط M أو كلمة المرور 0115.</p></div></div>
+  </div>
+</div>
+
+<!-- سوشيال ميديا -->
+<div class="card">
+  <div class="card-title" id="soc-title">🌐 تابعنا على السوشيال ميديا</div>
+  <div class="social-grid">
+    <a class="social-btn" href="https://youtube.com/@MajdFatihy" target="_blank" rel="noopener"><span class="si">▶️</span><span>YouTube</span></a>
+    <a class="social-btn" href="https://facebook.com/MajdFatihy98" target="_blank" rel="noopener"><span class="si">📘</span><span>Facebook</span></a>
+    <a class="social-btn" href="https://t.me/majdfathy" target="_blank" rel="noopener"><span class="si">✈️</span><span>Telegram</span></a>
+    <a class="social-btn" href="https://twitter.com/MajdFathy" target="_blank" rel="noopener"><span class="si">🐦</span><span>Twitter / X</span></a>
+    <a class="social-btn" href="https://tiktok.com/@MajdFatihy" target="_blank" rel="noopener"><span class="si">🎵</span><span>TikTok</span></a>
+  </div>
+</div>
+
+<!-- AD END -->
+<div class="ad-slot"><div data-ad="end"></div></div>
+
+</div><!-- /wrap -->
+
+<!-- FOOTER -->
+<footer>
+  <p id="ft1">أداة مجانية بواسطة <a href="https://youtube.com/@MajdFatihy" target="_blank" rel="noopener">MajdFatihy</a></p>
+  <p style="margin-top:5px" id="ft2">جميع العمليات محلية في متصفحك — لا يُرسل أي بيان لأي سيرفر</p>
+</footer>
+
+<!-- زر الهدية -->
+<button id="giftBtn" title="ادعم الأداة" onclick="openGift()">🎁</button>
+
+<!-- CAPTCHA MODAL -->
+<div class="modal-overlay" id="captchaModal">
+  <div class="modal-box">
+    <h3 id="cap-title">تحقق سريع</h3>
+    <p id="cap-sub">اكتب الأرقام الظاهرة للمتابعة</p>
+    <div class="captcha-display" id="capDisplay"></div>
+    <input class="captcha-input" type="text" id="capInput" maxlength="6"
+      placeholder="أدخل الرقم" oninput="clearCapErr()" onkeydown="if(event.key==='Enter')verifyCap()">
+    <div class="captcha-err" id="capErr"></div>
+    <!-- Banner إعلاني داخل الكابتشا -->
+    <div class="captcha-ad" id="capAd">
+      <div data-ad="seo" style="width:100%"></div>
+    </div>
+    <button class="modal-btn" id="capBtn" onclick="verifyCap()" id="capVerifyBtn">✓ تحقق وتنزيل</button>
+    <br>
+    <button class="refresh-cap" onclick="genCaptcha()" id="cap-refresh">🔄 رقم جديد</button>
+  </div>
+</div>
+
+<!-- SQL.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<!-- ADSTERRA -->
+<script src="adsterra.js" defer></script>
+
+<script>
+// ============================================================
+// CONSTANTS
+// ============================================================
+const WASM_URL  = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.wasm';
+const YT_ID     = '4Djm_Js9Tzg';
+const SMART_LINK= 'https://araplhn.org/4/3f093ddf57a8ee45454ef2e9b69b320a';
+const TYPE_ICONS= {photo:'🖼️',video:'🎬',audio:'🎵',document:'📄',file:'📎',gif:'🎞️',contact:'👤'};
+
+// Pattern: 7→1→5→3→9 (شبكة 1-indexed)
+const PAT_SEQ = [7,1,5,3,9];
+
+let SQL=null, db=null, modifiedBlob=null;
+let currentLang = 'ar';
+let captchaCode = '';
+
+// ============================================================
+// i18n
+// ============================================================
+const T = {
+  ar:{
+    'logo-txt':'SafeBox Editor',
+    'h-title':'استعادة كلمة مرور SafeBox',
+    'h-sub':'أداة مجانية لاستبدال بيانات القفل في SHAREit SafeBox — بدون برامج، تعمل في متصفحك',
+    'bk-title':'خد نسخة احتياطية أولاً!',
+    'bk-body':'قبل أي تعديل، انسخ ملف safebox.db الأصلي في مكان تاني. الأداة بتعدل الملف ومش بترجع التعديلات.',
+    's1-title':'📂 الخطوة ١ — رفع ملف safebox.db',
+    'uploadTitle':'اختر أو اسحب ملف safebox.db',
+    'uploadSub':'الملف لا يُرسل لأي سيرفر — كل المعالجة في متصفحك',
+    's2-title':'📊 الخطوة ٢ — إحصائيات الملف',
+    's3-title':'🔑 الخطوة ٣ — بيانات الاسترداد',
+    'cred-note-txt':'هذه هي البيانات التي ستُكتب في الملف. احتفظ بها في مكان آمن.',
+    'lbl-pwd':'🔢 كلمة المرور','lbl-pat':'🔲 نمط القفل — حرف M','lbl-qa':'❓ سؤال الأمان',
+    'copy-pwd':'📋 نسخ','copy-qa':'📋 نسخ',
+    'pat-hint':'↙ ابدأ من أسفل اليسار',
+    'pat-steps':'<div>① أسفل اليسار (7)</div><div>② أعلى اليسار (1)</div><div>③ المنتصف (5)</div><div>④ أعلى اليمين (3)</div><div>⑤ أسفل اليمين (9)</div>',
+    's4-title':'✅ الخطوة ٤ — تطبيق وتنزيل',
+    'apply-note':'سيتم استبدال بيانات القفل فقط. باقي البيانات تبقى كما هي.',
+    'btnApply':'🔄 تطبيق التغييرات على الملف',
+    'btnDl':'⬇️ تنزيل الملف المعدل (safebox.db)',
+    'btnReset':'↩️ إعادة التحميل / ملف آخر',
+    'vid-title':'🎬 شرح طريقة الاستخدام',
+    'vid-meta-title':'كيف تسترد كلمة مرور SafeBox في SHAREit؟',
+    'vid-meta-sub':'قناة MajdFatihy على يوتيوب',
+    'how-title':'📖 طريقة الاستخدام',
+    'st1h':'استخرج الملف من جهازك','st1p':'افتح مدير الملفات ← Android/data/com.lenovo.anyshare.gps/files/SafeBox ← انسخ safebox.db',
+    'st2h':'خد نسخة احتياطية','st2p':'انسخ الملف الأصلي على Google Drive أو كارت SD قبل أي تعديل.',
+    'st3h':'ارفع الملف هنا','st3p':'اسحب safebox.db للمربع أو اضغط عليه. لا يُرسل لأي سيرفر.',
+    'st4h':'طبّق ونزّل','st4p':'اضغط "تطبيق"، أجب على الكابتشا، ثم نزّل الملف المعدل.',
+    'st5h':'ضع الملف مكانه','st5p':'ضع الملف المعدل في نفس المسار، افتح SHAREit SafeBox وادخل النمط M أو كلمة المرور 0115.',
+    'soc-title':'🌐 تابعنا على السوشيال ميديا',
+    'ft1':'أداة مجانية بواسطة <a href="https://youtube.com/@MajdFatihy" target="_blank" rel="noopener">MajdFatihy</a>',
+    'ft2':'جميع العمليات محلية في متصفحك — لا يُرسل أي بيان لأي سيرفر',
+    'cap-title':'تحقق سريع','cap-sub':'اكتب الأرقام الظاهرة للمتابعة',
+    'cap-refresh':'🔄 رقم جديد',
+    'langBtn':'EN','themeBtn':'🌙',
+    'statTotal':'إجمالي العناصر','statTypes':'أنواع الملفات','statSize':'الحجم MB','statDel':'محذوف',
+    'oldestFile':'📅 أقدم ملف','newestFile':'🕐 أحدث ملف',
+    'typesSec':'تفصيل الأنواع',
+    'deletedNote':'⚠️ بعض أو كل هذه الملفات قد تكون بيانات قديمة تم حذفها مسبقاً من التطبيق، وإن كانت لا تزال موجودة في قاعدة البيانات.',
+    'statusLoaded':'✅ تم تحميل الملف — راجع الإحصائيات ثم اضغط تطبيق',
+    'statusApplied':'✅ تم التعديل! اضغط "تنزيل" للحصول على الملف.',
+  },
+  en:{
+    'logo-txt':'SafeBox Editor',
+    'h-title':'Restore SafeBox Password',
+    'h-sub':'Free tool to replace lock data in SHAREit SafeBox — no software needed, runs in your browser',
+    'bk-title':'Backup first!',
+    'bk-body':'Before any edit, copy the original safebox.db to another location. Changes cannot be undone automatically.',
+    's1-title':'📂 Step 1 — Upload safebox.db',
+    'uploadTitle':'Choose or drag safebox.db here',
+    'uploadSub':'File never leaves your browser — all processing is local',
+    's2-title':'📊 Step 2 — File Statistics',
+    's3-title':'🔑 Step 3 — Recovery Data',
+    'cred-note-txt':'These credentials will be written to the file. Keep them in a safe place.',
+    'lbl-pwd':'🔢 Password','lbl-pat':'🔲 Lock Pattern — Letter M','lbl-qa':'❓ Security Question',
+    'copy-pwd':'📋 Copy','copy-qa':'📋 Copy',
+    'pat-hint':'↙ Start from bottom-left',
+    'pat-steps':'<div>① Bottom-left (7)</div><div>② Top-left (1)</div><div>③ Center (5)</div><div>④ Top-right (3)</div><div>⑤ Bottom-right (9)</div>',
+    's4-title':'✅ Step 4 — Apply & Download',
+    'apply-note':'Only lock data will be replaced. All other data stays the same.',
+    'btnApply':'🔄 Apply Changes to File',
+    'btnDl':'⬇️ Download Modified File (safebox.db)',
+    'btnReset':'↩️ Reset / Load Another File',
+    'vid-title':'🎬 Tutorial Video',
+    'vid-meta-title':'How to restore SafeBox password in SHAREit?',
+    'vid-meta-sub':'MajdFatihy on YouTube',
+    'how-title':'📖 How to Use',
+    'st1h':'Extract the file','st1p':'Open File Manager → Android/data/com.lenovo.anyshare.gps/files/SafeBox → copy safebox.db',
+    'st2h':'Make a backup','st2p':'Copy the original file to Google Drive or SD card before editing.',
+    'st3h':'Upload the file','st3p':'Drag safebox.db to the box or click to choose. Never sent to any server.',
+    'st4h':'Apply & Download','st4p':'Click "Apply", solve the captcha, then download the modified file.',
+    'st5h':'Replace the file','st5p':'Put the modified file in the same path, open SHAREit SafeBox and enter pattern M or password 0115.',
+    'soc-title':'🌐 Follow Us',
+    'ft1':'Free tool by <a href="https://youtube.com/@MajdFatihy" target="_blank" rel="noopener">MajdFatihy</a>',
+    'ft2':'All processing is local in your browser — no data is sent to any server',
+    'cap-title':'Quick Verification','cap-sub':'Type the numbers shown to continue',
+    'cap-refresh':'🔄 New Code',
+    'langBtn':'عربي','themeBtn':'🌙',
+    'statTotal':'Total Items','statTypes':'File Types','statSize':'Size MB','statDel':'Deleted',
+    'oldestFile':'📅 Oldest File','newestFile':'🕐 Newest File',
+    'typesSec':'File Type Breakdown',
+    'deletedNote':'⚠️ Some or all of these files may be old entries previously deleted from the app, but still present in the database.',
+    'statusLoaded':'✅ File loaded — check stats then click Apply',
+    'statusApplied':'✅ Done! Click "Download" to get the modified file.',
+  }
+};
+
+function applyLang(l){
+  currentLang = l;
+  document.documentElement.lang = l;
+  document.documentElement.dir = l==='ar' ? 'rtl' : 'ltr';
+  const t = T[l];
+  for(const [id,val] of Object.entries(t)){
+    const el = document.getElementById(id);
+    if(!el) continue;
+    if(id==='ft1'||id==='ft2'||id==='pat-steps') el.innerHTML=val;
+    else if(el.tagName==='BUTTON'||el.tagName==='A') el.textContent=val;
+    else el.textContent=val;
+  }
+  // زرار اللغة نفسه
+  document.getElementById('langBtn').textContent = t['langBtn'];
+  // rebuild stats if loaded
+  if(db) buildStats();
+}
+
+function toggleLang(){
+  const next = currentLang==='ar'?'en':'ar';
+  applyLang(next);
+  try{localStorage.setItem('sbx-lang', next);}catch(e){}
+}
+
+// ============================================================
+// THEME
+// ============================================================
+function toggleTheme(){
+  const h = document.documentElement;
+  const current = h.getAttribute('data-theme');
+  const next = current==='light' ? 'dark' : 'light';
+  h.setAttribute('data-theme', next);
+  document.getElementById('themeBtn').textContent = next==='light' ? '🌙' : '☀️';
+  try{localStorage.setItem('sbx-theme',next);}catch(e){}
+}
+(function(){
+  try{
+    const saved = localStorage.getItem('sbx-theme');
+    if(saved){
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeBtn').textContent = saved==='light' ? '🌙' : '☀️';
+    } else {
+      // fallback: اتبع إعداد النظام
+      const preferLight = matchMedia('(prefers-color-scheme:light)').matches;
+      const theme = preferLight ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeBtn').textContent = preferLight ? '🌙' : '☀️';
+    }
+  }catch(e){}
+})();
+
+// ============================================================
+// PATTERN SVG  — متحرك مع سهم وخط متصل
+// ============================================================
+const GRID_POS = {
+  1:{x:20,y:20},2:{x:65,y:20},3:{x:110,y:20},
+  4:{x:20,y:65},5:{x:65,y:65},6:{x:110,y:65},
+  7:{x:20,y:110},8:{x:65,y:110},9:{x:110,y:110}
+};
+const DOT_R = 11;
+
+function buildPattern(){
+  const svg = document.getElementById('patternSVG');
+  const dotsG = document.getElementById('patDots');
+  const linesG = document.getElementById('patLines');
+  const animDot = document.getElementById('animDot');
+
+  // رسم الخطوط بين النقاط (مع سهم)
+  for(let i=0;i<PAT_SEQ.length-1;i++){
+    const a=GRID_POS[PAT_SEQ[i]], b=GRID_POS[PAT_SEQ[i+1]];
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',a.x); line.setAttribute('y1',a.y);
+    line.setAttribute('x2',b.x); line.setAttribute('y2',b.y);
+    line.setAttribute('stroke','#4f8ef7'); line.setAttribute('stroke-width','2.5');
+    line.setAttribute('stroke-linecap','round'); line.setAttribute('opacity','0.5');
+    line.setAttribute('marker-end','url(#arrowP)');
+    linesG.appendChild(line);
+  }
+
+  // رسم النقاط
+  for(let i=1;i<=9;i++){
+    const {x,y}=GRID_POS[i];
+    const isActive=PAT_SEQ.includes(i);
+    const order=PAT_SEQ.indexOf(i)+1;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+
+    const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx',x); circle.setAttribute('cy',y); circle.setAttribute('r',DOT_R);
+    circle.setAttribute('fill', isActive ? '#4f8ef7' : 'var(--s3)');
+    circle.setAttribute('stroke', isActive ? '#4f8ef7' : 'var(--bd2)');
+    circle.setAttribute('stroke-width','2');
+    if(isActive) circle.setAttribute('opacity','0.85');
+    g.appendChild(circle);
+
+    if(isActive){
+      const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',x); txt.setAttribute('y',y);
+      txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','central');
+      txt.setAttribute('fill','#fff'); txt.setAttribute('font-size','9');
+      txt.setAttribute('font-weight','700'); txt.textContent=order;
+      g.appendChild(txt);
+    }else{
+      const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx',x); dot.setAttribute('cy',y); dot.setAttribute('r','3');
+      dot.setAttribute('fill','var(--bd2)');
+      g.appendChild(dot);
+    }
+    dotsG.appendChild(g);
+  }
+
+  // تحريك النقطة على المسار
+  animatePattern(animDot);
+}
+
+function animatePattern(animDot){
+  let step=0;
+  const totalSteps=PAT_SEQ.length;
+  const duration=600; // ms per step
+  const pauseEnd=1200;
+
+  function moveToStep(s){
+    if(s>=totalSteps){
+      // توقف قصير ثم أعد
+      setTimeout(()=>{ step=0; animatePattern(animDot); }, pauseEnd);
+      animDot.setAttribute('opacity','0');
+      return;
+    }
+    const {x,y}=GRID_POS[PAT_SEQ[s]];
+    animDot.setAttribute('cx',x); animDot.setAttribute('cy',y);
+    animDot.setAttribute('opacity','0.9');
+    step=s+1;
+    setTimeout(()=>moveToStep(step), duration);
+  }
+
+  animDot.setAttribute('opacity','0');
+  setTimeout(()=>moveToStep(0), 300);
+}
+
+// ============================================================
+// SQL.js
+// ============================================================
+async function initSQL(){
+  if(SQL) return;
+  SQL = await initSqlJs({locateFile:()=>WASM_URL});
+}
+initSQL();
+
+// ============================================================
+// FILE UPLOAD
+// ============================================================
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
+
+uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('drag')});
+uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag'));
+uploadZone.addEventListener('drop',e=>{
+  e.preventDefault();uploadZone.classList.remove('drag');
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change',e=>{if(e.target.files[0]) handleFile(e.target.files[0]);});
+
+async function handleFile(file){
+  if(!file.name.endsWith('.db')){setStatus('err','❌ الملف لازم يكون .db'); return;}
+  await initSQL();
+  const buf = await file.arrayBuffer();
+  try{
+    db = new SQL.Database(new Uint8Array(buf));
+    db.exec("SELECT pwd FROM safebox LIMIT 1");
+
+    // إخفاء كارد الرفع بعد النجاح
+    document.getElementById('uploadCard').style.display='none';
+
+    buildStats();
+    buildPattern();
+    ['statsCard','credsCard','applyCard'].forEach(id=>document.getElementById(id).style.display='block');
+    document.getElementById('btnApply').disabled=false;
+    document.getElementById('btnReset').style.display='block';
+    setStatus('info', T[currentLang]['statusLoaded']);
+  }catch(e){setStatus('err','❌ '+e.message);}
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function buildStats(){
+  const l=currentLang, t=T[l];
+  try{
+    const res=db.exec("SELECT item_type,src_file_size,create_time,modify_time,item_exist FROM safebox_item");
+    if(!res.length||!res[0].values.length){document.getElementById('statsCard').style.display='none';return;}
+    const rows=res[0].values;
+    const total=rows.length, types={};
+    let totalSize=0,oldest=Infinity,newest=0,deletedCount=0;
+    rows.forEach(r=>{
+      const exist=r[4]; if(exist==0) deletedCount++;
+      types[r[0]]=(types[r[0]]||0)+1;
+      totalSize+=(r[1]||0);
+      const ct=parseInt(r[2]||0), mt=parseInt(r[3]||0);
+      if(ct&&ct<oldest) oldest=ct;
+      if(mt&&mt>newest) newest=mt;
+      else if(ct&&ct>newest) newest=ct;
+    });
+
+    document.getElementById('statsGrid').innerHTML=`
+      <div class="stat-box"><div class="sv">${total}</div><div class="sl">${t.statTotal}</div></div>
+      <div class="stat-box"><div class="sv">${Object.keys(types).length}</div><div class="sl">${t.statTypes}</div></div>
+      <div class="stat-box"><div class="sv">${(totalSize/1024/1024).toFixed(1)}</div><div class="sl">${t.statSize}</div></div>
+      <div class="stat-box"><div class="sv">${deletedCount}</div><div class="sl">${t.statDel}</div></div>`;
+
+    const maxV=Math.max(...Object.values(types));
+    document.getElementById('typesSection').innerHTML=
+      `<div style="margin-bottom:10px;font-size:.72rem;color:var(--muted);font-weight:600">${t.typesSec}</div>`+
+      Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+        <div class="type-row">
+          <div class="type-icon">${TYPE_ICONS[k]||'📄'}</div>
+          <div style="flex:1"><div style="font-size:.8rem;font-weight:600;margin-bottom:3px">${k}</div>
+          <div class="type-bar-wrap"><div class="type-bar" style="width:${(v/maxV*100).toFixed(0)}%"></div></div></div>
+          <div class="type-count">${v}</div>
+        </div>`).join('');
+
+    if(oldest!==Infinity&&newest){
+      const fmt=ts=>new Date(ts).toLocaleDateString(l==='ar'?'ar-EG':'en-GB',{year:'numeric',month:'long',day:'numeric'});
+      document.getElementById('datesSection').innerHTML=`
+        <div class="date-box"><div class="dl">${t.oldestFile}</div><div class="dv">${fmt(oldest)}</div></div>
+        <div class="date-box"><div class="dl">${t.newestFile}</div><div class="dv">${fmt(newest)}</div></div>`;
+    }
+    const dn=document.getElementById('deletedNote');
+    if(deletedCount>0){dn.textContent=t.deletedNote; dn.style.display='block';}
+    else dn.style.display='none';
+  }catch(e){console.warn('stats',e);}
+}
+
+// ============================================================
+// CAPTCHA
+// ============================================================
+function genCaptcha(){
+  const num = Math.floor(100000+Math.random()*900000).toString();
+  captchaCode = num;
+  const el = document.getElementById('capDisplay');
+  el.textContent = num;
+  document.getElementById('capInput').value='';
+  document.getElementById('capErr').textContent='';
+}
+
+function startCaptcha(){
+  if(!db) return;
+  genCaptcha();
+  document.getElementById('captchaModal').classList.add('show');
+  setTimeout(()=>document.getElementById('capInput').focus(),200);
+}
+
+function verifyCap(){
+  const val = document.getElementById('capInput').value.trim();
+  if(val===captchaCode){
+    document.getElementById('captchaModal').classList.remove('show');
+    applyChanges();
+  }else{
+    document.getElementById('capErr').textContent = currentLang==='ar' ? '❌ الرقم غير صحيح، حاول مرة أخرى' : '❌ Wrong code, try again';
+    genCaptcha();
+    document.getElementById('capInput').value='';
+  }
+}
+
+function clearCapErr(){ document.getElementById('capErr').textContent=''; }
+
+// ============================================================
+// APPLY
+// ============================================================
+function applyChanges(){
+  try{
+    const k=window.__SBX__;
+    db.run('UPDATE safebox SET pwd=?,pattern_pwd=?,qs1=?,aw1=? WHERE _id=1',[k.p,k.pp,k.q,k.a]);
+    const bytes=db.export();
+    const blob=new Blob([bytes],{type:'application/octet-stream'});
+    modifiedBlob=blob;
+    const dlBtn=document.getElementById('btnDl');
+    dlBtn.style.display='block';
+    dlBtn.onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='safebox.db';a.click();};
+    document.getElementById('btnApply').disabled=true;
+    setStatus('ok', T[currentLang]['statusApplied']);
+  }catch(e){setStatus('err','❌ '+e.message);}
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function resetTool(){
+  db=null; modifiedBlob=null; fileInput.value='';
+  uploadZone.classList.remove('done');
+  document.getElementById('uploadIcon').textContent='📂';
+  document.getElementById('uploadTitle').textContent=T[currentLang]['uploadTitle'];
+  document.getElementById('uploadSub').textContent=T[currentLang]['uploadSub'];
+  document.getElementById('uploadCard').style.display='block';
+  ['statsCard','credsCard','applyCard'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('btnDl').style.display='none';
+  document.getElementById('btnApply').disabled=true;
+  document.getElementById('btnReset').style.display='none';
+  document.getElementById('applyStatus').className='status';
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function setStatus(type,msg){
+  const el=document.getElementById('applyStatus');
+  el.className='status '+type; el.textContent=msg;
+}
+
+function copyText(txt,btn){
+  navigator.clipboard.writeText(txt).then(()=>{
+    const orig=btn.textContent;
+    btn.textContent='✓'; btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent=T[currentLang][btn.id]||orig;btn.classList.remove('copied');},2000);
+  });
+}
+
+// ============================================================
+// VIDEO
+// ============================================================
+function playVideo(){
+  document.getElementById('videoContainer').innerHTML=
+    `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${YT_ID}?autoplay=1&rel=0" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>`;
+}
+
+// ============================================================
+// GIFT
+// ============================================================
+function openGift(){
+  const btn=document.getElementById('giftBtn');
+  btn.style.display='none';
+  window.open(SMART_LINK,'_blank','noopener,noreferrer');
+  setTimeout(()=>btn.style.display='flex',60000);
+}
+
+// ============================================================
+// INIT — اللغة والثيم: localStorage أولاً ثم النظام
+// ============================================================
+buildPattern();
+(function(){
+  // اللغة: محفوظة ← لغة المتصفح ← عربي افتراضي
+  let lang;
+  try{ lang = localStorage.getItem('sbx-lang'); }catch(e){}
+  if(!lang){
+    const sys = (navigator.language||navigator.userLanguage||'ar').toLowerCase();
+    lang = sys.startsWith('ar') ? 'ar' : 'en';
+  }
+  applyLang(lang);
+})();
+</script>
+</body>
+</html>
