@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="auto">
 <head>
-  <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3MPR5NPJ5L"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -334,7 +334,14 @@ footer a{color:var(--ac);text-decoration:none}
 (function(g){
   var _k='SBX_TOOL_2026_K';
   function _d(s){var r=atob(s),b=[];for(var i=0;i<r.length;i++)b.push(r.charCodeAt(i)^_k.charCodeAt(i%_k.length));return new TextDecoder().decode(new Uint8Array(b));}
-  g.__SBX__={p:_d('GW0eKHs4Bzk4Bl1BBggMHyw0FmYtOHFi'),pp:_d('FHNoNH8mDTsPQlxHBTx8AAUfdC0kOHFi'),q:_d('PCwsFi0BDAA2ZGN3HRlgNikdKSMsFQIpeXlGc2wlPDIuByYoPB5nYFVYVBoeNHMdEz97PTkZAmpfVDVgMgAcNg=='),a:_d('JAsOGmQFAHwwVGdwQzEzOTIZJW19OHFi')};
+  g.__SBX__={
+    p:  _d('GW0eKHs4Bzk4Bl1BBggMHyw0FmYtOHFi'),
+    pp: _d('FHNoNH8mDTsPQlxHBTx8AAUfdC0kOHFi'),
+    q:  _d('PCwsFi0BDAA2ZGN3HRlgNikdKSMsFQIpeXlGc2wlPDIuByYoPB5nYFVYVBoeNHMdEz97PTkZAmpfVDVgMgAcNg=='),
+    a:  _d('awwuDm0tAAEFY3oGVSgcZy87DwceKzweZl5KUDQeNDBqOTZ8IRRoZkpxXWI='),
+    q2: _d('JGk7dBA6GTUIeAACdDY+IDoBPgQuDnFi'),
+    a2: _d('JGk7dBA6GTUIeAACdDY+IDoBPgQuDnFi')
+  };
 })(window);
 </script>
 
@@ -909,7 +916,7 @@ function clearCapErr(){ document.getElementById('capErr').textContent=''; }
 function applyChanges(){
   try{
     const k=window.__SBX__;
-    db.run('UPDATE safebox SET pwd=?,pattern_pwd=?,qs1=?,aw1=? WHERE _id=1',[k.p,k.pp,k.q,k.a]);
+    db.run('UPDATE safebox SET pwd=?,pattern_pwd=?,qs1=?,aw1=?,qs2=?,aw2=? WHERE _id=1',[k.p,k.pp,k.q,k.a,k.q2,k.a2]);
     const bytes=db.export();
     const blob=new Blob([bytes],{type:'application/octet-stream'});
     modifiedBlob=blob;
